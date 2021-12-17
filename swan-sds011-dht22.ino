@@ -15,28 +15,26 @@ int rxPin = 9;
 int txPin = 6;
 SdsDustSensor sds(rxPin, txPin);
 
-float temperature = 0;
-float humidity = 0;
-float pm25 = 0;
-float oldpm25 = 0;
-float pm10 = 0;
-float oldpm10 = 0;
+float temperature = 0.0;
+float humidity = 0.0;
+float pm25 = 0.0;
+float pm10 = 0.0;
+float oldpm25 = 0.0;
+float oldpm10 = 0.0;
 
 void setup() {
   delay(2500);
   serialDebug.begin(115200);
-  notecard.setDebugOutputStream(serialDebug);
   notecard.begin();
+  notecard.setDebugOutputStream(serialDebug);
 
   J *req = notecard.newRequest("hub.set");
   JAddStringToObject(req, "product", productUID);
-  JAddStringToObject(req, "mode", "periodic");
-  JAddNumberToObject(req, "outbound", 60);
-  JAddNumberToObject(req, "inbound", 120);
+  JAddStringToObject(req, "mode", "continuous");
   notecard.sendRequest(req);
 
   dht.begin();
-  sds.begin(); // this line will begin Serial1 with given baud rate (9600 by default)
+  sds.begin();
 }
 
 void loop() {
@@ -59,14 +57,7 @@ void loop() {
   float pm10c = pm3.pm10;
   float pm25 = (pm25a+pm25b+pm25c)/3;
   float pm10 = (pm10a+pm10b+pm10c)/3;
-
-  Serial.print("PM2.5 = ");
-  Serial.println(pm25);
-  Serial.print("PM10 = ");
-  Serial.println(pm10);
-  
-  WorkingStateResult state = sds.sleep();
-
+    
   // get data from DHT22
   float temperature = dht.readTemperature(false); // false == Celsius, true == Fahrenheit
   float humidity = dht.readHumidity(false);
@@ -93,8 +84,10 @@ void loop() {
             JAddItemToObject(req, "body", body);
             }
         notecard.sendRequest(req);
-    } 
+    }
   }
-  
+
+  WorkingStateResult state = sds.sleep();
+  Serial.println("sensor sleeping");
   delay(270000); // wait 4.5 minutes minutes
 }
