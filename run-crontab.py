@@ -1,7 +1,7 @@
 import requests
 import json
 
-api_url_qubitro = "https://api.qubitro.com/v1/projects/{your ProductID}/devices/{add your deviceID}/data?keys=temperature,humidity,pm10,pm25&period=1&limit=1"
+api_url_qubitro = "https://api.qubitro.com/v1/projects/{your ProductID}/devices/{add your deviceID}/data?keys=pm10,pm25&period=1&limit=1"
 headers_qubitro = {
     "Accept": "application/json",
     "Authorization": "Bearer {add your API key}" 
@@ -17,12 +17,6 @@ def post_data():
     response = requests.get(api_url_qubitro, headers=headers_qubitro).json()
 
     data = response['response']
-
-    for humidity_value in data:
-        humidity = humidity_value['humidity']
-
-    for temperature_value in data:
-        temperature = temperature_value['temperature']
 
     for pm25_value in data:
         pm25 = pm25_value['pm25']
